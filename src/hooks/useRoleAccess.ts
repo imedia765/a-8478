@@ -48,21 +48,26 @@ export const useRoleAccess = () => {
       console.log('User metadata:', sessionData.user.user_metadata);
 
       try {
-        // First try to get role from user_roles table
+        // First try to get roles from user_roles table
         const { data: roleData, error: roleError } = await supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', sessionData.user.id)
-          .maybeSingle();
+          .eq('user_id', sessionData.user.id);
 
         if (roleError) {
-          console.error('Error fetching role from user_roles:', roleError);
+          console.error('Error fetching roles from user_roles:', roleError);
           throw roleError;
         }
 
-        if (roleData?.role) {
-          console.log('Found role in user_roles table:', roleData.role);
-          return roleData.role as UserRole;
+        // If we found roles, return the highest priority role
+        if (roleData && roleData.length > 0) {
+          const roles = roleData.map(r => r.role);
+          console.log('Found roles in user_roles table:', roles);
+          
+          // Return highest priority role
+          if (roles.includes('admin')) return 'admin';
+          if (roles.includes('collector')) return 'collector';
+          if (roles.includes('member')) return 'member';
         }
 
         // If no role in user_roles table, check if user is a collector

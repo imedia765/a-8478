@@ -49,12 +49,8 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
         .select('*');
       
       if (searchTerm) {
-        // Fix: Split the conditions into separate or statements
-        query = query.or(
-          `full_name.ilike.%${searchTerm}%`,
-          `member_number.ilike.%${searchTerm}%`,
-          `collector.ilike.%${searchTerm}%`
-        );
+        // Fix: Use the correct or syntax with a single string
+        query = query.or(`full_name.ilike.%${searchTerm}%,member_number.ilike.%${searchTerm}%,collector.ilike.%${searchTerm}%`);
       }
 
       if (userRole === 'collector') {

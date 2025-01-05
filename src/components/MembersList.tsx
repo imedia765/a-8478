@@ -43,13 +43,18 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
   const { data: members, isLoading } = useQuery({
     queryKey: ['members', searchTerm, userRole],
     queryFn: async () => {
-      console.log('Fetching members...');
+      console.log('Fetching members with search term:', searchTerm);
       let query = supabase
         .from('members')
         .select('*');
       
       if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,member_number.ilike.%${searchTerm}%,collector.ilike.%${searchTerm}%`);
+        // Fix: Use individual ilike conditions for better search
+        query = query.or(
+          `full_name.ilike.%${searchTerm}%,` +
+          `member_number.ilike.%${searchTerm}%,` +
+          `collector.ilike.%${searchTerm}%`
+        );
       }
 
       if (userRole === 'collector') {

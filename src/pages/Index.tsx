@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import DashboardView from '@/components/DashboardView';
 import MembersList from '@/components/MembersList';
+import MemberSearch from '@/components/MemberSearch';
 import CollectorsList from '@/components/CollectorsList';
 import AuditLogsView from '@/components/AuditLogsView';
 import SidePanel from '@/components/SidePanel';
@@ -79,6 +80,10 @@ const Index = () => {
               <h1 className="text-3xl font-medium mb-2 text-white">Members</h1>
               <p className="text-dashboard-muted">View and manage member information</p>
             </header>
+            <MemberSearch 
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
             <MembersList searchTerm={searchTerm} userRole={userRole} />
           </>
         );

@@ -49,10 +49,10 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
         .select('*');
       
       if (searchTerm) {
-        // Fix: Use individual ilike conditions for better search
+        // Fix: Split the conditions into separate or statements
         query = query.or(
-          `full_name.ilike.%${searchTerm}%,` +
-          `member_number.ilike.%${searchTerm}%,` +
+          `full_name.ilike.%${searchTerm}%`,
+          `member_number.ilike.%${searchTerm}%`,
           `collector.ilike.%${searchTerm}%`
         );
       }

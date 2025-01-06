@@ -4,7 +4,6 @@ import { useToast } from "@/hooks/use-toast";
 import MemberProfileCard from './MemberProfileCard';
 import MonthlyChart from './MonthlyChart';
 import PaymentCard from './PaymentCard';
-import TotalCount from './TotalCount';
 import PaymentHistoryTable from './PaymentHistoryTable';
 import { Users, Wallet, AlertCircle } from 'lucide-react';
 
@@ -110,46 +109,7 @@ const DashboardView = () => {
           emergencyCollectionDueDate={memberProfile?.emergency_collection_due_date}
         />
 
-        {collectionTotals && (
-          <TotalCount 
-            items={[
-              {
-                count: collectionTotals.totalYearlyAmount - collectionTotals.collectedYearlyAmount,
-                label: "Remaining Annual Collections",
-                icon: <Wallet className="h-4 w-4 text-dashboard-accent1" />
-              },
-              {
-                count: collectionTotals.totalEmergencyAmount - collectionTotals.collectedEmergencyAmount,
-                label: "Remaining Emergency Collections",
-                icon: <AlertCircle className="h-4 w-4 text-dashboard-accent2" />
-              },
-              {
-                count: collectionTotals.yearlyPending + collectionTotals.emergencyPending,
-                label: "Total Pending Payments",
-                icon: <Users className="h-4 w-4 text-dashboard-warning" />
-              }
-            ]}
-          />
-        )}
-
         <MonthlyChart />
-
-        {arePaymentsCompleted && (
-          <TotalCount 
-            items={[
-              {
-                count: 40,
-                label: "Annual Payment",
-                icon: <Users className="h-4 w-4 text-dashboard-accent1" />
-              },
-              {
-                count: memberProfile?.emergency_collection_amount || 0,
-                label: "Emergency Collection",
-                icon: <Users className="h-4 w-4 text-dashboard-accent2" />
-              }
-            ]}
-          />
-        )}
 
         <PaymentHistoryTable />
       </div>

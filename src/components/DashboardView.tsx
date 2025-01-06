@@ -6,7 +6,7 @@ import MonthlyChart from './MonthlyChart';
 import PaymentCard from './PaymentCard';
 import TotalCount from './TotalCount';
 import PaymentHistoryTable from './PaymentHistoryTable';
-import { Users } from 'lucide-react';
+import { Users, Wallet, AlertCircle } from 'lucide-react';
 
 const DashboardView = () => {
   const { toast } = useToast();
@@ -18,7 +18,6 @@ const DashboardView = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error('No user logged in');
 
-      // First get the member number from the user metadata
       const { data: { user } } = await supabase.auth.getUser();
       const memberNumber = user?.user_metadata?.member_number;
       
@@ -61,6 +60,35 @@ const DashboardView = () => {
     },
   });
 
+  // Query to fetch collection totals
+  const { data: collectionTotals } = useQuery({
+    queryKey: ['collectionTotals'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('members')
+        .select('yearly_payment_status, emergency_collection_status, emergency_collection_amount');
+
+      if (error) throw error;
+
+      const totalMembers = data.length;
+      const yearlyPending = data.filter(m => m.yearly_payment_status === 'pending').length;
+      const emergencyPending = data.filter(m => m.emergency_collection_status === 'pending').length;
+      const totalEmergencyAmount = data.reduce((sum, member) => sum + (member.emergency_collection_amount || 0), 0);
+      const collectedEmergencyAmount = data
+        .filter(m => m.emergency_collection_status === 'completed')
+        .reduce((sum, member) => sum + (member.emergency_collection_amount || 0), 0);
+
+      return {
+        yearlyPending,
+        emergencyPending,
+        totalEmergencyAmount,
+        collectedEmergencyAmount,
+        totalYearlyAmount: totalMembers * 40, // £40 per member
+        collectedYearlyAmount: (totalMembers - yearlyPending) * 40
+      };
+    }
+  });
+
   const arePaymentsCompleted = memberProfile?.yearly_payment_status === 'completed' && 
     memberProfile?.emergency_collection_status === 'completed';
 
@@ -81,6 +109,28 @@ const DashboardView = () => {
           annualPaymentDueDate={memberProfile?.yearly_payment_due_date}
           emergencyCollectionDueDate={memberProfile?.emergency_collection_due_date}
         />
+
+        {collectionTotals && (
+          <TotalCount 
+            items={[
+              {
+                count: collectionTotals.totalYearlyAmount - collectionTotals.collectedYearlyAmount,
+                label: "Remaining Annual Collections",
+                icon: <Wallet className="h-4 w-4 text-dashboard-accent1" />
+              },
+              {
+                count: collectionTotals.totalEmergencyAmount - collectionTotals.collectedEmergencyAmount,
+                label: "Remaining Emergency Collections",
+                icon: <AlertCircle className="h-4 w-4 text-dashboard-accent2" />
+              },
+              {
+                count: collectionTotals.yearlyPending + collectionTotals.emergencyPending,
+                label: "Total Pending Payments",
+                icon: <Users className="h-4 w-4 text-dashboard-warning" />
+              }
+            ]}
+          />
+        )}
 
         <MonthlyChart />
 

@@ -7,15 +7,16 @@ import CollectorPaymentSummary from './CollectorPaymentSummary';
 import MemberCard from './members/MemberCard';
 import PaymentDialog from './members/PaymentDialog';
 import { Member } from '@/types/member';
-import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { generateMembersPDF } from '@/utils/pdfGenerator';
+import MembersListHeader from './members/MembersListHeader';
 
 interface MembersListProps {
   searchTerm: string;
   userRole: string | null;
 }
+
+const ITEMS_PER_PAGE = 7;
 
 const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
@@ -38,18 +39,18 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
       return collectorData;
     },
     enabled: userRole === 'collector',
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: members, isLoading } = useQuery({
+  const { data: membersData, isLoading } = useQuery({
     queryKey: ['members', searchTerm, userRole],
     queryFn: async () => {
       console.log('Fetching members with search term:', searchTerm);
       let query = supabase
         .from('members')
-        .select('*');
+        .select('*', { count: 'exact' });
       
       if (searchTerm) {
-        // Fix: Use the correct or syntax with a single string
         query = query.or(`full_name.ilike.%${searchTerm}%,member_number.ilike.%${searchTerm}%,collector.ilike.%${searchTerm}%`);
       }
 
@@ -69,19 +70,24 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
         }
       }
       
-      const { data, error } = await query
-        .order('created_at', { ascending: false });
+      const { data, count, error } = await query
+        .order('created_at', { ascending: false })
+        .limit(ITEMS_PER_PAGE);
       
       if (error) {
         console.error('Error fetching members:', error);
         throw error;
       }
       
-      console.log('Members query result:', data);
-      return data as Member[];
+      return {
+        members: data as Member[],
+        totalCount: count || 0
+      };
     },
+    staleTime: 30 * 1000,
   });
 
+  const members = membersData?.members || [];
   const selectedMember = members?.find(m => m.id === selectedMemberId);
 
   const handlePrintMembers = () => {
@@ -113,29 +119,30 @@ const MembersList = ({ searchTerm, userRole }: MembersListProps) => {
 
   return (
     <div className="space-y-6">
-      {userRole === 'collector' && members && members.length > 0 && (
-        <div className="flex justify-end mb-4">
-          <Button
-            onClick={handlePrintMembers}
-            className="flex items-center gap-2 bg-dashboard-accent1 hover:bg-dashboard-accent1/80"
-          >
-            <Printer className="w-4 h-4" />
-            Print Members List
-          </Button>
-        </div>
-      )}
+      <MembersListHeader 
+        userRole={userRole}
+        onPrint={handlePrintMembers}
+        hasMembers={members.length > 0}
+        collectorInfo={collectorInfo}
+      />
 
       <ScrollArea className="h-[600px] w-full rounded-md">
-        <Accordion type="single" collapsible className="space-y-4">
-          {members?.map((member) => (
-            <MemberCard
-              key={member.id}
-              member={member}
-              userRole={userRole}
-              onPaymentClick={() => setSelectedMemberId(member.id)}
-            />
-          ))}
-        </Accordion>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-dashboard-accent1"></div>
+          </div>
+        ) : (
+          <Accordion type="single" collapsible className="space-y-4">
+            {members?.map((member) => (
+              <MemberCard
+                key={member.id}
+                member={member}
+                userRole={userRole}
+                onPaymentClick={() => setSelectedMemberId(member.id)}
+              />
+            ))}
+          </Accordion>
+        )}
       </ScrollArea>
 
       {selectedMember && (

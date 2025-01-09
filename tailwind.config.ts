@@ -25,27 +25,23 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         dashboard: {
-          dark: "#1A1F2C",
-          light: "#F1F0FB",
-          accent1: "#9b87f5",
-          accent2: "#7E69AB",
-          accent3: "#6E59A5",
-          text: "#F6F6F7",
-          muted: "#8E9196",
-          card: "#221F26",
-          warning: "#F97316",
+          dark: "#141413",
+          light: "#FAFAF8",
+          accent1: "#8989DE",
+          accent2: "#61AAF2",
+          accent3: "#7EBF8E",
+          text: "#C4C3BB",
+          muted: "#828179",
+          card: "#1A1A19",
+          warning: "#FFD700",
+          // Adding new color variations
+          cardHover: "#222221",
+          cardBorder: "#2A2A29",
+          cardBorderHover: "#3A3A39",
+          highlight: "#9B87F5",
           success: "#4CAF50",
-          error: "#ea384c",
-          info: "#0EA5E9",
-          cardHover: "#2A2F3C",
-          cardBorder: "#403E43",
-          cardBorderHover: "#8A898C",
-          highlight: "#D6BCFA",
-          gradient: {
-            from: "#9b87f5",
-            via: "#7E69AB",
-            to: "#6E59A5"
-          }
+          error: "#FF5252",
+          info: "#2196F3"
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",

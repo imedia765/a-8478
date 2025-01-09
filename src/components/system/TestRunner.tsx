@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DebugConsole } from '../logs/DebugConsole';
 import SystemCheckProgress from './SystemCheckProgress';
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TestRunner = () => {
   const [testLogs, setTestLogs] = useState<string[]>(['Test runner initialized and ready']);
@@ -14,35 +15,47 @@ const TestRunner = () => {
   const [progress, setProgress] = useState(0);
   const [currentTest, setCurrentTest] = useState('');
   const [hasRun, setHasRun] = useState(false);
+  const [activeTab, setActiveTab] = useState('system');
 
   const runTestsMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (testType: string) => {
       setIsRunning(true);
-      setTestLogs(prev => [...prev, '🚀 Starting test run...']);
+      setTestLogs(prev => [...prev, `🚀 Starting ${testType} tests...`]);
       setProgress(0);
-      setCurrentTest('Initializing tests...');
+      setCurrentTest(`Initializing ${testType} tests...`);
 
       try {
-        console.log('Invoking run-tests function...');
-        const { data, error } = await supabase.functions.invoke('run-tests', {
-          body: { command: 'test' }
-        });
+        let endpoint = 'run-tests';
+        let testResults;
 
-        if (error) {
-          console.error('Function invocation error:', error);
-          setTestLogs(prev => [...prev, `❌ Error: ${error.message}`]);
-          throw error;
+        switch (testType) {
+          case 'performance':
+            testResults = await checkPerformance();
+            break;
+          case 'security':
+            testResults = await checkSecurity();
+            break;
+          case 'configuration':
+            testResults = await checkConfiguration();
+            break;
+          default:
+            console.log('Running system tests...');
+            const { data, error } = await supabase.functions.invoke('run-tests', {
+              body: { command: 'test' }
+            });
+            if (error) throw error;
+            testResults = data;
         }
-        
-        console.log('Test run completed:', data);
-        setTestLogs(prev => [...prev, '✅ Tests completed successfully', `📊 Coverage: ${data.coverage}`]);
+
+        console.log(`${testType} test run completed:`, testResults);
+        setTestLogs(prev => [...prev, `✅ ${testType} tests completed`, ...formatTestResults(testResults)]);
         setProgress(100);
         setCurrentTest('All tests complete');
         setHasRun(true);
-        toast.success("Test run completed successfully");
+        toast.success(`${testType} test run completed`);
         
-        return data;
-      } catch (error) {
+        return testResults;
+      } catch (error: any) {
         console.error('Test run error:', error);
         setTestLogs(prev => [...prev, `❌ Error running tests: ${error.message}`]);
         toast.error("Test run failed");
@@ -60,6 +73,44 @@ const TestRunner = () => {
       setIsRunning(false);
     }
   });
+
+  const checkPerformance = async () => {
+    const { data: performanceData, error } = await supabase
+      .rpc('check_system_performance')
+      .select();
+    
+    if (error) throw error;
+    return performanceData;
+  };
+
+  const checkSecurity = async () => {
+    const { data: securityData, error } = await supabase
+      .rpc('audit_security_settings')
+      .select();
+    
+    if (error) throw error;
+    return securityData;
+  };
+
+  const checkConfiguration = async () => {
+    const { data: configData, error } = await supabase
+      .rpc('validate_user_roles')
+      .select();
+    
+    if (error) throw error;
+    return configData;
+  };
+
+  const formatTestResults = (results: any) => {
+    if (!results) return [];
+    
+    return Object.entries(results).map(([key, value]) => {
+      if (typeof value === 'object') {
+        return `📊 ${key}: ${JSON.stringify(value, null, 2)}`;
+      }
+      return `📊 ${key}: ${value}`;
+    });
+  };
 
   // Subscribe to real-time test logs
   useQuery({
@@ -100,14 +151,56 @@ const TestRunner = () => {
           <PlayCircle className="w-5 h-5 text-dashboard-accent1" />
           Test Runner
         </h2>
-        <Button
-          onClick={() => runTestsMutation.mutate()}
-          disabled={isRunning}
-          className="bg-dashboard-accent1 hover:bg-dashboard-accent2 text-white"
-        >
-          {isRunning ? 'Running Tests...' : 'Run Tests'}
-        </Button>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-4 gap-4">
+          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="configuration">Configuration</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="system">
+          <Button
+            onClick={() => runTestsMutation.mutate('system')}
+            disabled={isRunning}
+            className="bg-dashboard-accent1 hover:bg-dashboard-accent2 text-white"
+          >
+            {isRunning ? 'Running Tests...' : 'Run System Tests'}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <Button
+            onClick={() => runTestsMutation.mutate('performance')}
+            disabled={isRunning}
+            className="bg-dashboard-accent1 hover:bg-dashboard-accent2 text-white"
+          >
+            {isRunning ? 'Running Tests...' : 'Run Performance Tests'}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <Button
+            onClick={() => runTestsMutation.mutate('security')}
+            disabled={isRunning}
+            className="bg-dashboard-accent1 hover:bg-dashboard-accent2 text-white"
+          >
+            {isRunning ? 'Running Tests...' : 'Run Security Tests'}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="configuration">
+          <Button
+            onClick={() => runTestsMutation.mutate('configuration')}
+            disabled={isRunning}
+            className="bg-dashboard-accent1 hover:bg-dashboard-accent2 text-white"
+          >
+            {isRunning ? 'Running Tests...' : 'Run Configuration Tests'}
+          </Button>
+        </TabsContent>
+      </Tabs>
 
       {isRunning && (
         <SystemCheckProgress

@@ -10,7 +10,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 262 83.3% 57.8%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,7 +22,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 262 83.3% 57.8%;
     --radius: 0.75rem;
   }
 }
@@ -43,4 +43,40 @@
 
 .metric-card {
   @apply relative flex flex-col items-center justify-center p-8 dashboard-card;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-dashboard-gradient-from via-dashboard-gradient-via to-dashboard-gradient-to;
+}
+
+.btn-primary {
+  @apply bg-dashboard-accent1 hover:bg-dashboard-accent1/80 text-white transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-dashboard-accent2 hover:bg-dashboard-accent2/80 text-white transition-colors;
+}
+
+.btn-tertiary {
+  @apply bg-dashboard-accent3 hover:bg-dashboard-accent3/80 text-white transition-colors;
+}
+
+.btn-outline {
+  @apply border border-dashboard-cardBorder hover:bg-dashboard-cardHover text-dashboard-text transition-colors;
+}
+
+.btn-ghost {
+  @apply hover:bg-dashboard-cardHover text-dashboard-text transition-colors;
+}
+
+.btn-destructive {
+  @apply bg-dashboard-error hover:bg-dashboard-error/80 text-white transition-colors;
+}
+
+.btn-warning {
+  @apply bg-dashboard-warning hover:bg-dashboard-warning/80 text-white transition-colors;
+}
+
+.btn-success {
+  @apply bg-dashboard-success hover:bg-dashboard-success/80 text-white transition-colors;
 }

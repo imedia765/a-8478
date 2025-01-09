@@ -468,6 +468,16 @@ export type Database = {
           details: Json
         }[]
       }
+      check_system_performance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric_name: string
+          current_value: number
+          threshold: number
+          status: string
+          details: Json
+        }[]
+      }
       generate_full_backup: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -540,6 +550,11 @@ export type Database = {
         | "user_activity"
         | "resource_usage"
       payment_method: "bank_transfer" | "cash"
+      performance_metric:
+        | "response_time"
+        | "query_performance"
+        | "connection_count"
+        | "cache_hit_ratio"
       severity_level: "info" | "warning" | "error" | "critical"
     }
     CompositeTypes: {

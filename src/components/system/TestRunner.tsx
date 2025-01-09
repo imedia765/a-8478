@@ -25,26 +25,32 @@ const TestRunner = () => {
       setCurrentTest(`Initializing ${testType} tests...`);
 
       try {
-        let endpoint = 'run-tests';
         let testResults;
 
         switch (testType) {
           case 'performance':
-            testResults = await checkPerformance();
+            const { data: performanceData } = await supabase
+              .rpc('check_system_performance')
+              .select();
+            testResults = performanceData;
             break;
           case 'security':
-            testResults = await checkSecurity();
+            const { data: securityData } = await supabase
+              .rpc('audit_security_settings')
+              .select();
+            testResults = securityData;
             break;
           case 'configuration':
-            testResults = await checkConfiguration();
+            const { data: configData } = await supabase
+              .rpc('validate_user_roles')
+              .select();
+            testResults = configData;
             break;
           default:
-            console.log('Running system tests...');
-            const { data, error } = await supabase.functions.invoke('run-tests', {
-              body: { command: 'test' }
-            });
-            if (error) throw error;
-            testResults = data;
+            const { data: memberData } = await supabase
+              .rpc('check_member_numbers')
+              .select();
+            testResults = memberData;
         }
 
         console.log(`${testType} test run completed:`, testResults);
@@ -74,33 +80,6 @@ const TestRunner = () => {
     }
   });
 
-  const checkPerformance = async () => {
-    const { data: performanceData, error } = await supabase
-      .rpc('check_system_performance')
-      .select();
-    
-    if (error) throw error;
-    return performanceData;
-  };
-
-  const checkSecurity = async () => {
-    const { data: securityData, error } = await supabase
-      .rpc('audit_security_settings')
-      .select();
-    
-    if (error) throw error;
-    return securityData;
-  };
-
-  const checkConfiguration = async () => {
-    const { data: configData, error } = await supabase
-      .rpc('validate_user_roles')
-      .select();
-    
-    if (error) throw error;
-    return configData;
-  };
-
   const formatTestResults = (results: any) => {
     if (!results) return [];
     
@@ -112,7 +91,6 @@ const TestRunner = () => {
     });
   };
 
-  // Subscribe to real-time test logs
   useQuery({
     queryKey: ['test-logs'],
     queryFn: async () => {

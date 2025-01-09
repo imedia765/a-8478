@@ -23,11 +23,27 @@ const TestRunner = () => {
     
     try {
       const testFunctions = [
-        { name: 'System Performance', fn: 'check_system_performance' },
-        { name: 'Security Audit', fn: 'audit_security_settings' },
-        { name: 'Configuration Check', fn: 'validate_user_roles' },
-        { name: 'Member Numbers', fn: 'check_member_numbers' }
-      ];
+        { 
+          name: 'System Performance', 
+          fn: 'check_system_performance',
+          type: 'performance'
+        },
+        { 
+          name: 'Security Audit', 
+          fn: 'audit_security_settings',
+          type: 'security'
+        },
+        { 
+          name: 'Configuration Check', 
+          fn: 'validate_user_roles',
+          type: 'configuration'
+        },
+        { 
+          name: 'Member Numbers', 
+          fn: 'check_member_numbers',
+          type: 'system'
+        }
+      ] as const;
 
       const results = [];
       let completedTests = 0;
@@ -36,13 +52,18 @@ const TestRunner = () => {
         setCurrentTest(`Running ${test.name}...`);
         setTestLogs(prev => [...prev, `📋 Starting ${test.name} test...`]);
 
-        const { data, error } = await supabase.rpc(test.fn).select();
+        const { data, error } = await supabase.rpc(test.fn);
 
         if (error) {
           throw new Error(`${test.name} failed: ${error.message}`);
         }
 
-        results.push(...(Array.isArray(data) ? data : [data]));
+        const processedData = Array.isArray(data) ? data : [data];
+        results.push(...processedData.map(item => ({
+          ...item,
+          test_type: test.type
+        })));
+        
         completedTests++;
         setProgress((completedTests / testFunctions.length) * 100);
         setTestLogs(prev => [...prev, `✅ ${test.name} completed`]);
@@ -139,7 +160,7 @@ const TestRunner = () => {
           <h3 className="text-lg font-medium text-dashboard-text mb-4">Test Results</h3>
           <TestResultsTable 
             results={testResults} 
-            type={testResults[0]?.metric_name ? 'performance' : 'system'} 
+            type={testResults[0]?.test_type || 'system'} 
           />
         </div>
       )}

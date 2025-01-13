@@ -46,12 +46,12 @@ const PaymentConfirmationSplash = ({
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
-      success ? 'bg-dashboard-softGreen/90' : 'bg-red-500/90'
+      success ? 'bg-dashboard-success/90' : 'bg-dashboard-error/90'
     } animate-fade-in`}>
-      <div className="relative bg-white rounded-lg p-6 max-w-md w-full space-y-4 animate-scale-in">
+      <div className="relative bg-dashboard-card rounded-lg p-6 max-w-md w-full space-y-4 animate-scale-in border border-dashboard-cardBorder">
         <button 
           onClick={() => setIsVisible(false)}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          className="absolute top-4 right-4 text-dashboard-text hover:text-white transition-colors"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -59,43 +59,43 @@ const PaymentConfirmationSplash = ({
 
         <div className="flex justify-center">
           {success ? (
-            <CheckCircle2 className="w-16 h-16 text-blue-500" />
+            <CheckCircle2 className="w-16 h-16 text-dashboard-success" />
           ) : (
-            <XCircle className="w-16 h-16 text-red-500" />
+            <XCircle className="w-16 h-16 text-dashboard-error" />
           )}
         </div>
-        <h2 className="text-2xl font-bold text-center">
+        <h2 className="text-2xl font-bold text-center text-white">
           {success ? 'Payment Confirmed' : 'Payment Failed'}
         </h2>
         {success && paymentRef && (
           <div className="space-y-2">
-            <div className="bg-gray-50 p-4 rounded-md space-y-2">
-              <p className="text-sm text-gray-600">Payment Reference</p>
-              <p className="font-mono font-medium">{paymentRef}</p>
+            <div className="bg-dashboard-cardHover p-4 rounded-md space-y-2 border border-dashboard-cardBorder">
+              <p className="text-sm text-dashboard-text">Payment Reference</p>
+              <p className="font-mono font-medium text-white">{paymentRef}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-600">Amount</p>
-              <p className="font-medium">£{amount.toFixed(2)}</p>
+              <p className="text-sm text-dashboard-text">Amount</p>
+              <p className="font-medium text-white">£{amount.toFixed(2)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-600">Payment Type</p>
-              <p className="font-medium capitalize">{paymentType}</p>
+              <p className="text-sm text-dashboard-text">Payment Type</p>
+              <p className="font-medium text-white capitalize">{paymentType}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-600">Member Number</p>
-              <p className="font-medium">{memberNumber}</p>
+              <p className="text-sm text-dashboard-text">Member Number</p>
+              <p className="font-medium text-white">{memberNumber}</p>
             </div>
             
             {collectorInfo && (
-              <div className="mt-6 border-t pt-4">
-                <h3 className="text-lg font-semibold mb-3 text-gray-700">Contact Your Collector</h3>
+              <div className="mt-6 border-t border-dashboard-cardBorder pt-4">
+                <h3 className="text-lg font-semibold mb-3 text-white">Contact Your Collector</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-dashboard-text">
                     <User className="w-4 h-4" />
                     <span>{collectorInfo.name}</span>
                   </div>
                   {collectorInfo.phone && (
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-dashboard-text">
                       <Phone className="w-4 h-4" />
                       <span>{collectorInfo.phone}</span>
                     </div>
@@ -106,7 +106,7 @@ const PaymentConfirmationSplash = ({
           </div>
         )}
         {!success && (
-          <p className="text-center text-gray-600">
+          <p className="text-center text-dashboard-text">
             Please try again or contact support if the problem persists.
           </p>
         )}

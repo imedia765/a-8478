@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, XCircle, Phone, User } from 'lucide-react';
+import { CheckCircle2, XCircle, Phone, User, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,6 +18,8 @@ const PaymentConfirmationSplash = ({
   paymentType,
   memberNumber
 }: PaymentConfirmationSplashProps) => {
+  const [isVisible, setIsVisible] = React.useState(true);
+
   // Fetch collector information based on member number
   const { data: collectorInfo } = useQuery({
     queryKey: ['collector-info', memberNumber],
@@ -40,11 +42,21 @@ const PaymentConfirmationSplash = ({
     enabled: success && !!memberNumber
   });
 
+  if (!isVisible) return null;
+
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
-      success ? 'bg-blue-500/90' : 'bg-red-500/90'
+      success ? 'bg-dashboard-softGreen/90' : 'bg-red-500/90'
     } animate-fade-in`}>
-      <div className="bg-white rounded-lg p-6 max-w-md w-full space-y-4 animate-scale-in">
+      <div className="relative bg-white rounded-lg p-6 max-w-md w-full space-y-4 animate-scale-in">
+        <button 
+          onClick={() => setIsVisible(false)}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
         <div className="flex justify-center">
           {success ? (
             <CheckCircle2 className="w-16 h-16 text-blue-500" />

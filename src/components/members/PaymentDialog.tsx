@@ -89,12 +89,6 @@ const PaymentDialog = ({
       await queryClient.invalidateQueries({ queryKey: ['payment-requests'] });
       await queryClient.invalidateQueries({ queryKey: ['member-payments'] });
 
-      // Hide splash after 3 seconds and close dialog
-      setTimeout(() => {
-        setShowSplash(false);
-        onClose();
-      }, 3000);
-
     } catch (error: any) {
       console.error('Error submitting payment:', error);
       setPaymentSuccess(false);
@@ -105,12 +99,12 @@ const PaymentDialog = ({
         description: error.message || "Failed to submit payment request",
         variant: "destructive"
       });
-
-      // Hide error splash after 3 seconds
-      setTimeout(() => {
-        setShowSplash(false);
-      }, 3000);
     }
+  };
+
+  const handleSplashClose = () => {
+    setShowSplash(false);
+    onClose();
   };
 
   return (
@@ -176,6 +170,7 @@ const PaymentDialog = ({
             amount={selectedPaymentType === 'yearly' ? 40 : 20}
             paymentType={selectedPaymentType}
             memberNumber={memberNumber}
+            onClose={handleSplashClose}
           />
         )}
       </DialogContent>

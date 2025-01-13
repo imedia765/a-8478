@@ -9,6 +9,7 @@ interface PaymentConfirmationSplashProps {
   amount: number;
   paymentType: string;
   memberNumber: string;
+  onClose: () => void;
 }
 
 const PaymentConfirmationSplash = ({
@@ -16,10 +17,9 @@ const PaymentConfirmationSplash = ({
   paymentRef,
   amount,
   paymentType,
-  memberNumber
+  memberNumber,
+  onClose
 }: PaymentConfirmationSplashProps) => {
-  const [isVisible, setIsVisible] = React.useState(true);
-
   // Fetch collector information based on member number
   const { data: collectorInfo } = useQuery({
     queryKey: ['collector-info', memberNumber],
@@ -42,15 +42,13 @@ const PaymentConfirmationSplash = ({
     enabled: success && !!memberNumber
   });
 
-  if (!isVisible) return null;
-
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
-      success ? 'bg-dashboard-success/90' : 'bg-dashboard-error/90'
+      success ? 'bg-dashboard-success/95' : 'bg-dashboard-error/95'
     } animate-fade-in`}>
       <div className="relative bg-dashboard-card rounded-lg p-6 max-w-md w-full space-y-4 animate-scale-in border border-dashboard-cardBorder">
         <button 
-          onClick={() => setIsVisible(false)}
+          onClick={onClose}
           className="absolute top-4 right-4 text-dashboard-text hover:text-white transition-colors"
           aria-label="Close"
         >

@@ -22,19 +22,22 @@ const PaymentConfirmationSplash = ({
   const { data: collectorInfo } = useQuery({
     queryKey: ['collector-info', memberNumber],
     queryFn: async () => {
+      if (!memberNumber) return null;
+
       const { data, error } = await supabase
         .from('members_collectors')
         .select('name, phone')
         .eq('member_number', memberNumber)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching collector info:', error);
         return null;
       }
+
       return data;
     },
-    enabled: success // Only fetch if payment was successful
+    enabled: success && !!memberNumber
   });
 
   return (

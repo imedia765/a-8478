@@ -20,6 +20,28 @@ const PaymentConfirmationSplash = ({
   memberNumber,
   onClose
 }: PaymentConfirmationSplashProps) => {
+  // Fetch payment number and collector information based on payment reference
+  const { data: paymentInfo } = useQuery({
+    queryKey: ['payment-info', paymentRef],
+    queryFn: async () => {
+      if (!paymentRef) return null;
+
+      const { data, error } = await supabase
+        .from('payment_requests')
+        .select('payment_number')
+        .eq('id', paymentRef)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching payment info:', error);
+        return null;
+      }
+
+      return data;
+    },
+    enabled: success && !!paymentRef
+  });
+
   // Fetch collector information based on member number
   const { data: collectorInfo } = useQuery({
     queryKey: ['collector-info', memberNumber],
@@ -65,11 +87,11 @@ const PaymentConfirmationSplash = ({
         <h2 className="text-2xl font-bold text-center text-white">
           {success ? 'Payment Confirmed' : 'Payment Failed'}
         </h2>
-        {success && paymentRef && (
+        {success && paymentInfo?.payment_number && (
           <div className="space-y-2">
             <div className="bg-dashboard-cardHover p-4 rounded-md space-y-2 border border-dashboard-cardBorder">
-              <p className="text-sm text-dashboard-text">Payment Reference</p>
-              <p className="font-mono font-medium text-white">{paymentRef}</p>
+              <p className="text-sm text-dashboard-text">Payment Number</p>
+              <p className="font-mono font-medium text-white">{paymentInfo.payment_number}</p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-dashboard-text">Amount</p>

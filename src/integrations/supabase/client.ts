@@ -19,3 +19,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     schema: 'public'
   }
 });
+
+// Add error handling helper
+export const handleSupabaseError = (error: any) => {
+  console.error('Supabase error:', error);
+  if (error.code === 'PGRST116') {
+    return null; // Handle no rows found
+  }
+  throw error;
+};

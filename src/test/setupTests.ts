@@ -14,8 +14,22 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', {
 });
 
 // Properly type the window object
-const customWindow = dom.window as unknown as Window & typeof globalThis;
-global.window = customWindow;
+declare global {
+  interface Window {
+    matchMedia: (query: string) => {
+      matches: boolean;
+      media: string;
+      onchange: null;
+      addListener: (listener: () => void) => void;
+      removeListener: (listener: () => void) => void;
+      addEventListener: (type: string, listener: () => void) => void;
+      removeEventListener: (type: string, listener: () => void) => void;
+      dispatchEvent: (event: Event) => boolean;
+    };
+  }
+}
+
+global.window = dom.window as unknown as Window & typeof globalThis;
 global.document = dom.window.document;
 global.navigator = {
   userAgent: 'node.js',

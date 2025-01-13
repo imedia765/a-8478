@@ -16,17 +16,9 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', {
 // Properly type the window object
 declare global {
   interface Window {
-    matchMedia: (query: string) => {
-      matches: boolean;
-      media: string;
-      onchange: null;
-      addListener: (listener: () => void) => void;
-      removeListener: (listener: () => void) => void;
-      addEventListener: (type: string, listener: () => void) => void;
-      removeEventListener: (type: string, listener: () => void) => void;
-      dispatchEvent: (event: Event) => boolean;
-    };
+    matchMedia: (query: string) => MediaQueryList;
   }
+  var localStorage: Storage;
 }
 
 global.window = dom.window as unknown as Window & typeof globalThis;
@@ -43,7 +35,7 @@ global.localStorage = {
   clear: vi.fn(),
   length: 0,
   key: vi.fn(),
-};
+} as unknown as Storage;
 
 // Mock window.matchMedia
 global.window.matchMedia = vi.fn().mockImplementation(query => ({

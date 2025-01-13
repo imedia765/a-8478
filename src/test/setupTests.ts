@@ -4,6 +4,7 @@ import { expect, afterEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
+import { JSDOM } from 'jsdom';
 
 // Setup a basic DOM environment for tests
 const dom = new JSDOM('<!doctype html><html><body></body></html>', {

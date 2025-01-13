@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Phone, User } from "lucide-react";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface PaymentDialogProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ const PaymentDialog = ({
   const [paymentRef, setPaymentRef] = useState<string>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hasRole } = useRoleAccess();
+  const isCollector = hasRole('collector');
 
   const handleSubmit = async () => {
     if (!collectorInfo?.id) {
@@ -160,9 +163,9 @@ const PaymentDialog = ({
           <Button 
             onClick={handleSubmit}
             className="w-full bg-dashboard-accent1 hover:bg-dashboard-accent1/90"
-            disabled={true}
+            disabled={!isCollector}
           >
-            Please Contact Your Collector
+            {isCollector ? 'Record Payment' : 'Please Contact Your Collector'}
           </Button>
         </div>
 

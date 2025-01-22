@@ -3,6 +3,7 @@ import PaymentStatistics from './financials/PaymentStatistics';
 import CollectorsSummary from './financials/CollectorsSummary';
 import AllPaymentsTable from './financials/AllPaymentsTable';
 import { DashboardTabs, DashboardTabsList, DashboardTabsTrigger, DashboardTabsContent } from "@/components/ui/dashboard-tabs";
+import MemberStatsView from './members/MemberStatsView';
 
 const FinancialsView = () => {
   return (
@@ -33,12 +34,7 @@ const FinancialsView = () => {
         </DashboardTabsContent>
 
         <DashboardTabsContent value="stats" className="mt-6">
-          <Card className="bg-dashboard-card border-dashboard-accent1/20 p-6">
-            <h2 className="text-xl font-medium text-white mb-4">Member Payment Statistics</h2>
-            <div className="text-dashboard-text">
-              Member payment statistics and analytics will be displayed here.
-            </div>
-          </Card>
+          <MemberStatsView />
         </DashboardTabsContent>
       </DashboardTabs>
     </div>
